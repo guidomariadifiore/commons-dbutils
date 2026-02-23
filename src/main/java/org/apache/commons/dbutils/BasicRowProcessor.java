@@ -19,11 +19,11 @@ package org.apache.commons.dbutils;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.eclipse.collections.impl.map.mutable.UnifiedMap; // Added for energy efficiency
 
 /**
  * Basic implementation of the {@code RowProcessor} interface.
@@ -74,7 +74,7 @@ public class BasicRowProcessor implements RowProcessor {
          * </ul>
          * </p>
          */
-        private final Map<String, String> lowerCaseMap = new UnifiedMap<>(); // Refactored: HashMap to UnifiedMap
+        private final Map<String, String> lowerCaseMap = new HashMap<>();
 
         private CaseInsensitiveHashMap(final int initialCapacity) {
             super(initialCapacity);
@@ -202,7 +202,7 @@ public class BasicRowProcessor implements RowProcessor {
         final int cols = meta.getColumnCount();
         final Object[] result = new Object[cols];
 
-        for (int i = 0; i < cols; ++i) { // Refactored: i++ to ++i
+        for (int i = 0; i < cols; i++) {
             result[i] = resultSet.getObject(i + 1);
         }
 
@@ -265,7 +265,7 @@ public class BasicRowProcessor implements RowProcessor {
         final int cols = rsmd.getColumnCount();
         final Map<String, Object> result = createCaseInsensitiveHashMap(cols);
 
-        for (int i = 1; i <= cols; ++i) { // Refactored: i++ to ++i
+        for (int i = 1; i <= cols; i++) {
             String propKey = rsmd.getColumnLabel(i);
             if (null == propKey || 0 == propKey.length()) {
               propKey = rsmd.getColumnName(i);

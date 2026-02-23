@@ -9,7 +9,8 @@
  *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -561,24 +562,9 @@ public abstract class BaseResultSetHandler<T> implements ResultSetHandler<T>, Re
         return resultSet.isFirst();
     }
 
-    /**
-     * This method is not supported by {@code BaseResultSetHandler} due to its inherent potential for high energy consumption
-     * and resource inefficiency, particularly with large result sets and certain JDBC driver implementations.
-     * Direct calls to {@code isLast()} can lead to unnecessary data fetching and processing, increasing
-     * the operational energy demand and contributing to a larger carbon footprint.
-     *
-     * To foster more sustainable and energy-efficient coding practices, client code should avoid
-     * relying on this method. Instead, prefer iterative processing using {@code while(next())} loops
-     * to traverse the {@code ResultSet}, which is generally more performant, consumes fewer
-     * computational resources, and minimizes environmental impact.
-     *
-     * @return (Never returns, always throws an exception)
-     * @throws SQLException if a database access error occurs
-     * @throws UnsupportedOperationException always, to enforce energy-efficient iteration patterns.
-     */
     @Override
     public final boolean isLast() throws SQLException {
-        throw new UnsupportedOperationException("The isLast() method is not supported by BaseResultSetHandler due to its potential for high energy consumption and resource inefficiency, as per energy-efficient coding guidelines. Please refactor client code to use iterative processing (e.g., while(next())) to determine the end of the ResultSet.");
+        return resultSet.isLast();
     }
 
     @Override

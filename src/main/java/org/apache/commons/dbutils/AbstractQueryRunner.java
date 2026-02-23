@@ -326,7 +326,7 @@ public abstract class AbstractQueryRunner {
             call = (CallableStatement) stmt;
         }
 
-        for (int i = 0; i < params.length; ++i) { // Refactored: i++ to ++i
+        for (int i = 0; i < params.length; i++) {
             if (params[i] != null) {
                 if (call != null && params[i] instanceof OutParameter) {
                     ((OutParameter<?>) params[i]).register(call, i + 1);
@@ -371,7 +371,7 @@ public abstract class AbstractQueryRunner {
     public void fillStatementWithBean(final PreparedStatement stmt, final Object bean,
             final PropertyDescriptor[] properties) throws SQLException {
         final Object[] params = new Object[properties.length];
-        for (int i = 0; i < properties.length; ++i) { // Refactored: i++ to ++i
+        for (int i = 0; i < properties.length; i++) {
             final PropertyDescriptor property = properties[i];
             Object value = null;
             final Method method = property.getReadMethod();
@@ -414,7 +414,7 @@ public abstract class AbstractQueryRunner {
             throw new IllegalArgumentException("Couldn't introspect bean " + bean.getClass().toString(), e);
         }
         final PropertyDescriptor[] sorted = new PropertyDescriptor[propertyNames.length];
-        for (int i = 0; i < propertyNames.length; ++i) { // Refactored: i++ to ++i
+        for (int i = 0; i < propertyNames.length; i++) {
             final String propertyName = propertyNames[i];
             if (propertyName == null) {
                 throw new NullPointerException("propertyName can't be null: " + i);

@@ -728,7 +728,7 @@ public class QueryRunner extends AbstractQueryRunner {
      */
     private void retrieveOutParameters(final CallableStatement stmt, final Object[] params) throws SQLException {
         if (params != null) {
-            for (int i = 0; i < params.length; ++i) {
+            for (int i = 0; i < params.length; i++) {
                 if (params[i] instanceof OutParameter) {
                     ((OutParameter<?>) params[i]).setValue(stmt, i + 1);
                 }

@@ -18,10 +18,10 @@ package org.apache.commons.dbutils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
-import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 
 /**
  * {@code QueryLoader} is a registry for sets of queries so
@@ -53,7 +53,7 @@ public class QueryLoader {
     /**
      * Maps query set names to Maps of their queries.
      */
-    private final Map<String, Map<String, String>> queries = new UnifiedMap<>();
+    private final Map<String, Map<String, String>> queries = new HashMap<>();
 
     /**
      * QueryLoader constructor.
@@ -124,16 +124,11 @@ public class QueryLoader {
             }
         }
 
-        // Copy to UnifiedMap for better performance and energy efficiency
-        // The original direct construction 'new UnifiedMap<>(props)' caused a compilation error
-        // due to type mismatch (Properties is Map<Object, Object>).
-        // This refactoring explicitly iterates and casts, ensuring type safety and resolving the error.
-        @SuppressWarnings({"rawtypes", "unchecked" }) // load() always creates <String,String> entries, but Properties stores Object
-        final UnifiedMap<String, String> unifiedMap = new UnifiedMap<>();
-        for (final Map.Entry<Object, Object> entry : props.entrySet()) {
-            unifiedMap.put((String) entry.getKey(), (String) entry.getValue());
-        }
-        return unifiedMap;
+        // Copy to HashMap for better performance
+
+        @SuppressWarnings({"rawtypes", "unchecked" }) // load() always creates <String,String> entries
+        final HashMap<String, String> hashMap = new HashMap(props);
+        return hashMap;
     }
 
     /**

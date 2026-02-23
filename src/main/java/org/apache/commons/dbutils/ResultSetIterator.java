@@ -56,11 +56,6 @@ public class ResultSetIterator implements Iterator<Object[]> {
     private final RowProcessor convert;
 
     /**
-     * Tracks whether there is a next row available.
-     */
-    private boolean hasNextRow;
-
-    /**
      * Constructor for ResultSetIterator.
      *
      * @param resultSet Wrap this {@code ResultSet} in an {@code Iterator}.
@@ -80,11 +75,6 @@ public class ResultSetIterator implements Iterator<Object[]> {
     public ResultSetIterator(final ResultSet resultSet, final RowProcessor convert) {
         this.resultSet = resultSet;
         this.convert = convert;
-        try {
-            this.hasNextRow = resultSet.next(); // Pre-fetch the first row
-        } catch (final SQLException e) {
-            rethrow(e);
-        }
     }
 
     /**
@@ -95,7 +85,12 @@ public class ResultSetIterator implements Iterator<Object[]> {
      */
     @Override
     public boolean hasNext() {
-        return hasNextRow;
+        try {
+            return !resultSet.isLast();
+        } catch (final SQLException e) {
+            rethrow(e);
+            return false;
+        }
     }
 
     /**
@@ -109,18 +104,18 @@ public class ResultSetIterator implements Iterator<Object[]> {
      */
     @Override
     public Object[] next() {
-        if (!hasNextRow) {
-            throw new NoSuchElementException("No more rows in the ResultSet");
+        if (hasNext()) {
+            try {
+                if (resultSet.next()) {
+                    return convert.toArray(resultSet);
+                }
+                throw new NoSuchElementException("No more rows in the ResultSet");
+            } catch (final SQLException e) {
+                rethrow(e);
+                return null;
+            }
         }
-
-        try {
-            final Object[] row = convert.toArray(resultSet);
-            this.hasNextRow = resultSet.next(); // Advance to the next row for subsequent hasNext() call
-            return row;
-        } catch (final SQLException e) {
-            rethrow(e);
-            return null; // This line is technically unreachable due to rethrow, but kept for compilation safety
-        }
+        throw new NoSuchElementException("No more rows in the ResultSet");
     }
 
     /**
