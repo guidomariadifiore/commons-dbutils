@@ -43,7 +43,7 @@ public class GenerousBeanProcessor extends BeanProcessor {
         final int[] columnToProperty = new int[cols + 1];
         Arrays.fill(columnToProperty, PROPERTY_NOT_FOUND);
 
-        for (int col = 1; col <= cols; col++) {
+        for (int col = 1; col <= cols; ++col) {
             String columnName = rsmd.getColumnLabel(col);
 
             if (null == columnName || 0 == columnName.length()) {
@@ -54,7 +54,7 @@ public class GenerousBeanProcessor extends BeanProcessor {
                     .replace("_", "")   // more idiomatic to Java
                     .replace(" ", "");  // can't have spaces in property names
 
-            for (int i = 0; i < props.length; i++) {
+            for (int i = 0; i < props.length; ++i) {
                 final String propName = props[i].getName();
 
                 // see if either the column name, or the generous one matches

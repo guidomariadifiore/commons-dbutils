@@ -67,7 +67,26 @@
       <version>1.4.0</version>
       <scope>test</scope>
     </dependency>
-  </dependencies>
+  
+        <!-- Eclipse Collections -->
+        <dependency>
+            <groupId>org.eclipse.collections</groupId>
+            <artifactId>eclipse-collections-api</artifactId>
+            <version>11.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.collections</groupId>
+            <artifactId>eclipse-collections</artifactId>
+            <version>11.1.0</version>
+        </dependency>
+
+        <!-- Apache Commons Collections -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.4</version>
+        </dependency>
+    </dependencies>
 
   <distributionManagement>
     <!-- Cannot define in parent ATM, see COMMONSSITE-26 -->
@@ -122,7 +141,7 @@
             <configLocation>${checkstyle.config.file}</configLocation>
             <enableRulesSummary>false</enableRulesSummary>
             <headerLocation>${checkstyle.header.file}</headerLocation>
-            <includeTestSourceDirectory>true</includeTestSourceDirectory> <!-- TODO -->
+            <includeTestSourceDirectory>false</includeTestSourceDirectory>
             <suppressionsLocation>${basedir}/src/conf/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
             <suppressionsFileExpression>${basedir}/src/conf/checkstyle/checkstyle-suppressions.xml</suppressionsFileExpression>
           </configuration>

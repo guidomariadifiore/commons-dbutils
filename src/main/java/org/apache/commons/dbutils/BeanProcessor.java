@@ -26,12 +26,16 @@ import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections; // Added for unmodifiable collections
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+
+import org.apache.commons.collections4.map.HashedMap;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.factory.Maps;
+import org.eclipse.collections.impl.list.mutable.FastList;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 
 /**
  * <p>
@@ -62,27 +66,39 @@ public class BeanProcessor {
      * is returned.  These are the same as the defaults that ResultSet get*
      * methods return in the event of a NULL column.
      */
-    private static final Map<Class<?>, Object> PRIMITIVE_DEFAULTS = new HashMap<>();
+    private static final Map<Class<?>, Object> PRIMITIVE_DEFAULTS;
 
-    private static final List<ColumnHandler<?>> COLUMN_HANDLERS = new ArrayList<>();
+    private static final List<ColumnHandler<?>> COLUMN_HANDLERS;
 
-    private static final List<PropertyHandler> PROPERTY_HANDLERS = new ArrayList<>();
+    private static final List<PropertyHandler> PROPERTY_HANDLERS;
 
     static {
-        PRIMITIVE_DEFAULTS.put(Integer.TYPE, Integer.valueOf(0));
-        PRIMITIVE_DEFAULTS.put(Short.TYPE, Short.valueOf((short) 0));
-        PRIMITIVE_DEFAULTS.put(Byte.TYPE, Byte.valueOf((byte) 0));
-        PRIMITIVE_DEFAULTS.put(Float.TYPE, Float.valueOf(0f));
-        PRIMITIVE_DEFAULTS.put(Double.TYPE, Double.valueOf(0d));
-        PRIMITIVE_DEFAULTS.put(Long.TYPE, Long.valueOf(0L));
-        PRIMITIVE_DEFAULTS.put(Boolean.TYPE, Boolean.FALSE);
-        PRIMITIVE_DEFAULTS.put(Character.TYPE, Character.valueOf((char) 0));
+        // Initialize a mutable map for population
+        final UnifiedMap<Class<?>, Object> tempPrimitiveDefaults = new UnifiedMap<>();
+        tempPrimitiveDefaults.put(Integer.TYPE, Integer.valueOf(0));
+        tempPrimitiveDefaults.put(Short.TYPE, Short.valueOf((short) 0));
+        tempPrimitiveDefaults.put(Byte.TYPE, Byte.valueOf((byte) 0));
+        tempPrimitiveDefaults.put(Float.TYPE, Float.valueOf(0f));
+        tempPrimitiveDefaults.put(Double.TYPE, Double.valueOf(0d));
+        tempPrimitiveDefaults.put(Long.TYPE, Long.valueOf(0L));
+        tempPrimitiveDefaults.put(Boolean.TYPE, Boolean.FALSE);
+        tempPrimitiveDefaults.put(Character.TYPE, Character.valueOf((char) 0));
+        // Make it truly immutable after population, resolving compilation error
+        PRIMITIVE_DEFAULTS = java.util.Collections.unmodifiableMap(tempPrimitiveDefaults);
 
+        // Initialize a mutable list for population
+        final FastList<ColumnHandler<?>> tempColumnHandlers = new FastList<>();
         // Use a ServiceLoader to find implementations
-        ServiceLoader.load(ColumnHandler.class).forEach(COLUMN_HANDLERS::add);
+        ServiceLoader.load(ColumnHandler.class).forEach(tempColumnHandlers::add);
+        // Make it truly immutable after population, resolving compilation error
+        COLUMN_HANDLERS = java.util.Collections.unmodifiableList(tempColumnHandlers);
 
+        // Initialize a mutable list for population
+        final FastList<PropertyHandler> tempPropertyHandlers = new FastList<>();
         // Use a ServiceLoader to find implementations
-        ServiceLoader.load(PropertyHandler.class).forEach(PROPERTY_HANDLERS::add);
+        ServiceLoader.load(PropertyHandler.class).forEach(tempPropertyHandlers::add);
+        // Make it truly immutable after population, resolving compilation error
+        PROPERTY_HANDLERS = java.util.Collections.unmodifiableList(tempPropertyHandlers);
     }
 
     /**
@@ -94,7 +110,7 @@ public class BeanProcessor {
      * Constructor for BeanProcessor.
      */
     public BeanProcessor() {
-        this(new HashMap<>());
+        this(new HashedMap<>());
     }
 
     /**
@@ -221,9 +237,9 @@ public class BeanProcessor {
 
         final int cols = rsmd.getColumnCount();
         final int[] columnToProperty = new int[cols + 1];
-        Arrays.fill(columnToProperty, PROPERTY_NOT_FOUND);
+        java.util.Arrays.fill(columnToProperty, PROPERTY_NOT_FOUND);
 
-        for (int col = 1; col <= cols; col++) {
+        for (int col = 1; col <= cols; ++col) { // Refactored: col++ to ++col
             String columnName = rsmd.getColumnLabel(col);
             if (null == columnName || 0 == columnName.length()) {
               columnName = rsmd.getColumnName(col);
@@ -236,7 +252,7 @@ public class BeanProcessor {
                 propertyName = Integer.toString(col);
             }
 
-            for (int i = 0; i < props.length; i++) {
+            for (int i = 0; i < props.length; ++i) { // Refactored: i++ to ++i
                 final PropertyDescriptor prop = props[i];
                 final Method reader = prop.getReadMethod();
 
@@ -344,7 +360,7 @@ public class BeanProcessor {
             final PropertyDescriptor[] props, final int[] columnToProperty)
             throws SQLException {
 
-        for (int i = 1; i < columnToProperty.length; i++) {
+        for (int i = 1; i < columnToProperty.length; ++i) { // Refactored: i++ to ++i
 
             if (columnToProperty[i] == PROPERTY_NOT_FOUND) {
                 continue;
@@ -503,7 +519,7 @@ public class BeanProcessor {
      * @return the newly created List of beans
      */
     public <T> List<T> toBeanList(final ResultSet resultSet, final Class<? extends T> type) throws SQLException {
-        final List<T> results = new ArrayList<>();
+        final List<T> results = new FastList<>(); // Refactored: ArrayList to FastList
         if (!resultSet.next()) {
             return results;
         }

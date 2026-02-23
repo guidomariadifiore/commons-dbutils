@@ -29,10 +29,10 @@ import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.dbutils.ProxyFactory;
+import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 
 /**
  * Decorates a {@code ResultSet} with checks for a SQL NULL value on each
@@ -74,7 +74,7 @@ public class SqlNullCheckedResultSet implements InvocationHandler {
      * Maps normal method names (ie. "getBigDecimal") to the corresponding null
      * Method object (ie. getNullBigDecimal).
      */
-    private static final Map<String, Method> NULL_METHODS = new HashMap<>();
+    private final Map<String, Method> NULL_METHODS;
 
     /**
      * The {@code getNull} string prefix.
@@ -82,18 +82,6 @@ public class SqlNullCheckedResultSet implements InvocationHandler {
      * @since 1.4
      */
     private static final String GET_NULL_PREFIX = "getNull";
-
-    static {
-        final Method[] methods = SqlNullCheckedResultSet.class.getMethods();
-        for (final Method method : methods) {
-            final String methodName = method.getName();
-
-            if (methodName.startsWith(GET_NULL_PREFIX)) {
-                final String normalName = "get" + methodName.substring(GET_NULL_PREFIX.length());
-                NULL_METHODS.put(normalName, method);
-            }
-        }
-    }
 
     /**
      * The factory to create proxies with.
@@ -150,6 +138,16 @@ public class SqlNullCheckedResultSet implements InvocationHandler {
      */
     public SqlNullCheckedResultSet(final ResultSet resultSet) {
         this.resultSet = resultSet;
+        this.NULL_METHODS = new UnifiedMap<>();
+        final Method[] methods = SqlNullCheckedResultSet.class.getMethods();
+        for (final Method method : methods) {
+            final String methodName = method.getName();
+
+            if (methodName.startsWith(GET_NULL_PREFIX)) {
+                final String normalName = "get" + methodName.substring(GET_NULL_PREFIX.length());
+                this.NULL_METHODS.put(normalName, method);
+            }
+        }
     }
 
     /**
